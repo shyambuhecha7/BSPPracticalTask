@@ -4,44 +4,42 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
+import com.task.bsppracticaltask.api.ApiService
+import com.task.bsppracticaltask.database.AppDatabase
+import com.task.bsppracticaltask.repository.ApiRepository
+import com.task.bsppracticaltask.ui.viewmodel.MainViewModel
+import com.task.bsppracticaltask.ui.screens.ApiDataScreen
 import com.task.bsppracticaltask.ui.theme.BSPPracticalTaskTheme
+import com.task.bsppracticaltask.ui.viewmodel.ViewModelFactory
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var viewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             BSPPracticalTaskTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                    val apiService = Retrofit.Builder()
+                        .baseUrl("https://practical.mytdigital.tech/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(ApiService::class.java)
+
+                    val database = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "app_db").build()
+                    val apiRepository = ApiRepository(apiService, database.apiDataDao())
+                    viewModel = ViewModelProvider(this, ViewModelFactory(apiRepository)).get(
+                        MainViewModel::class.java)
+
+                    ApiDataScreen(viewModel)
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BSPPracticalTaskTheme {
-        Greeting("Android")
-    }
-}
