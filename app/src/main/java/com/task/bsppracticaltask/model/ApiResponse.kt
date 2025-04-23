@@ -1,7 +1,5 @@
 package com.task.bsppracticaltask.model
 
-
-
 data class ApiResponse(
     val success: Boolean,
     val api_log_id: Long,

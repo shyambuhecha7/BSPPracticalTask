@@ -4,10 +4,22 @@ plugins {
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
 
-    id("com.google.devtools.ksp") version "2.0.21-1.0.27"
+    alias(libs.plugins.kotlinAndroidKsp) apply false
+    alias(libs.plugins.hiltAndroid) apply false
+//    id("com.google.devtools.ksp") version "2.1.20-1.0.31"
 }
+
 buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
     dependencies {
-        classpath ("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.0.21-1.0.27")
+        classpath(libs.gradle)
+        classpath(libs.kotlin.gradle.plugin)
+        classpath(libs.hilt.android.gradle.plugin)
+        classpath(libs.symbol.processing.gradle.plugin)
+        classpath ("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.1.20-1.0.31")
+
     }
 }

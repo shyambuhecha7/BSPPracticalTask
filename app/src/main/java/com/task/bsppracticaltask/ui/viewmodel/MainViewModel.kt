@@ -7,34 +7,38 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.task.bsppracticaltask.model.ApiResponse
 import com.task.bsppracticaltask.repository.ApiRepository
+import dagger.hilt.android.HiltAndroidApp
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val repository: ApiRepository
 ) : ViewModel() {
 
-    private val _apiResponse = MutableLiveData<ApiResponse?>()
-    val apiResponse: LiveData<ApiResponse?> get() = _apiResponse
+    private val _uiState = MutableLiveData<UiState<ApiResponse>>()
+    val uiState: LiveData<UiState<ApiResponse>> = _uiState
 
-    private val _loading = MutableLiveData<Boolean>()
-    val loading: LiveData<Boolean> get() = _loading
-
-    // Fetch data based on time condition
     fun fetchData(requestUuid: String) {
         viewModelScope.launch {
-            _loading.value = true
-            val localData = repository.getLocalData(requestUuid)
-
-            if (localData != null && (System.currentTimeMillis() - localData.timestamp) < 2 * 60 * 60 * 1000) {
-                // If data is less than 2 hours old, use local data
-                val cachedResponse = Gson().fromJson(localData.page, ApiResponse::class.java)
-                _apiResponse.value = cachedResponse
-            } else {
-                // If data is older than 2 hours or not available, fetch from API
-                val apiResponse = repository.fetchDataFromApi()
-                _apiResponse.value = apiResponse
+            _uiState.value = UiState.Loading
+            try {
+                val localData = repository.getLocalData(requestUuid)
+                val response = if (localData != null
+                    && (System.currentTimeMillis() - localData.timestamp) < 2 * 60 * 60 * 1000
+                ) {
+                    Gson().fromJson(localData.page, ApiResponse::class.java)
+                } else {
+                    repository.fetchDataFromApi() ?: throw Exception("Empty API response")
+                }
+                _uiState.value = UiState.Success(response)
+            } catch (t: Throwable) {
+                _uiState.value = UiState.Error(
+                    t.localizedMessage ?: "Unknown error occurred"
+                )
             }
-            _loading.value = false
         }
     }
 }
+

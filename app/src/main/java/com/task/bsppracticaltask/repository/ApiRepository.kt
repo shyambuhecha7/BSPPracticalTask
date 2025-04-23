@@ -5,8 +5,9 @@ import com.task.bsppracticaltask.api.ApiService
 import com.task.bsppracticaltask.database.ApiDataDao
 import com.task.bsppracticaltask.database.ApiDataEntity
 import com.task.bsppracticaltask.model.ApiResponse
+import javax.inject.Inject
 
-class ApiRepository(private val apiService: ApiService, private val apiDataDao: ApiDataDao) {
+class ApiRepository @Inject constructor(private val apiService: ApiService, private val apiDataDao: ApiDataDao) {
 
     suspend fun fetchDataFromApi(): ApiResponse? {
         val response = apiService.getApiResponse()
