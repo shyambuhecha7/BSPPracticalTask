@@ -1,5 +1,7 @@
 package com.task.bsppracticaltask.model
 
+
+
 data class ApiResponse(
     val success: Boolean,
     val api_log_id: Long,
@@ -16,21 +18,24 @@ data class Page(
 )
 
 data class Element(
-    val id: Int,
+    val component_items: List<ComponentItem>,
     val element_type: String,
     val header: String,
-    val subheader: String,
-    val sku: String,
+    val id: Int,
     val media_data: MediaData,
-    val title: String,
-    val topics: List<Topic>,
-    val subtitles: List<Subtitle>,
-    val languages: List<Language>,
-    val publisher: Publisher,
     val mobile_image_url: String,
+    val sku: String,
+    val style: String,
+    val subheader: String,
     val tablet_image_url: String,
-    val additional_field_1: String,
-    val additional_field_2: String
+    val variant_types: List<String>
+)
+data class ComponentItem(
+    val id: Int,
+    val image_url: String,
+    val media_data: MediaData,
+    val sku: String,
+    val variant_type: String
 )
 
 data class MediaData(
